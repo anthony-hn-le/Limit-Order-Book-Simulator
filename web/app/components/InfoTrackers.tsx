@@ -9,10 +9,9 @@ interface Props {
 export function InfoTrackers({ lastPrice, bestBid, bestAsk, spread, midPrice }: Props) {
   return (
     <div
-      className="card"
+      className="card lob-trackers"
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(5, 1fr)",
         gap: "1rem",
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
@@ -20,6 +19,16 @@ export function InfoTrackers({ lastPrice, bestBid, bestAsk, spread, midPrice }: 
         padding: "0.9rem 1rem",
       }}
     >
+      <style jsx>{`
+        .lob-trackers {
+          grid-template-columns: repeat(5, 1fr);
+        }
+        @media (max-width: 560px) {
+          .lob-trackers {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+      `}</style>
       <Stat label="LAST PRICE" value={lastPrice} color="var(--text-primary)" />
       <Stat label="BEST BID" value={bestBid} color="var(--accent-green)" />
       <Stat label="BEST ASK" value={bestAsk} color="var(--accent-red)" />

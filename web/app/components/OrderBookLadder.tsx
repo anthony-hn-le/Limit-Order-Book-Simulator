@@ -94,7 +94,16 @@ function Row({
   };
 
   return (
-    <div style={{ position: "relative", display: "flex", justifyContent: "space-between", padding: "0.2rem 0.5rem" }}>
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.5rem",
+        padding: "0.2rem 0.5rem",
+        overflow: "hidden",
+      }}
+    >
       <div style={barStyle} />
       {priceOnLeft ? (
         <>

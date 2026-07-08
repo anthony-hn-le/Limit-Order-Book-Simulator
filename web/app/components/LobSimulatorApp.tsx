@@ -95,6 +95,27 @@ export default function LobSimulatorApp({ onReset }: Props) {
 
   return (
     <>
+    <style jsx>{`
+      /* Only grid-template-columns needs a breakpoint -- everything else
+         (gap, margins, alignItems) stays as each div's original inline
+         style, so these classes carry column widths only. */
+      .lob-cols-role {
+        grid-template-columns: 1fr auto;
+      }
+      .lob-cols-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+      .lob-cols-3 {
+        grid-template-columns: 260px 1fr 300px;
+      }
+      @media (max-width: 700px) {
+        .lob-cols-role,
+        .lob-cols-2,
+        .lob-cols-3 {
+          grid-template-columns: 1fr;
+        }
+      }
+    `}</style>
     <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 1.5rem", width: "100%" }}>
       <header style={{ marginBottom: "2rem" }}>
         <div className="mono" style={{ color: "var(--accent-cyan)", fontSize: "0.75rem", marginBottom: "0.4rem" }}>
@@ -143,26 +164,32 @@ export default function LobSimulatorApp({ onReset }: Props) {
         >
           Instructions
         </h2>
-        <ul style={{ color: "var(--text-secondary)", fontSize: "0.85rem", lineHeight: 1.7, margin: 0, paddingLeft: "1.3rem" }}>
-          <li>
-            🎭 Pick a role: <strong style={{ color: "var(--text-primary)" }}>Market Taker</strong> buys/sells
-            instantly against the book, <strong style={{ color: "var(--text-primary)" }}>Market Maker</strong>{" "}
-            quotes your own bid/ask spread. Same wallet either way — no cheating.
-          </li>
-          <li>
-            📊 Your <strong style={{ color: "var(--text-primary)" }}>Total PnL</strong> and{" "}
-            <strong style={{ color: "var(--text-primary)" }}>Account Balance</strong> live in the Account
-            panel. That number is the whole game.
-          </li>
-          <li>
-            💀 Balance goes negative, you&apos;re <strong style={{ color: "var(--accent-red)" }}>bankrupt</strong> —
-            the market shows no mercy. Hit <strong style={{ color: "var(--text-primary)" }}>Restart</strong>{" "}
-            for a clean slate, no hard feelings.
-          </li>
-          <li>
-            🤖 The ambient bot keeps the book alive so there&apos;s always someone to trade with — toggle it
-            off if you&apos;d rather trade a frozen book.
-          </li>
+        <ul style={{ listStyle: "none", color: "var(--text-secondary)", fontSize: "0.85rem", lineHeight: 1.7, margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+          <InstructionItem>
+            Start by picking a role.{" "}
+            <strong style={{ color: "var(--text-primary)" }}>Market Taker</strong>{" "}
+            buys and sells instantly against the book, while{" "}
+            <strong style={{ color: "var(--text-primary)" }}>Market Maker</strong>{" "}
+            lets you quote your own bid and ask. Both spend from the same wallet, so don&apos;t bother trying to
+            trade against yourself.
+          </InstructionItem>
+          <InstructionItem>
+            Keep an eye on your <strong style={{ color: "var(--text-primary)" }}>Total PnL</strong>{" "}
+            and{" "}
+            <strong style={{ color: "var(--text-primary)" }}>Account Balance</strong>{" "}
+            in the Account panel. Honestly, that number is basically the whole game.
+          </InstructionItem>
+          <InstructionItem>
+            Let your balance drop below zero and you&apos;re{" "}
+            <strong style={{ color: "var(--accent-red)" }}>bankrupt</strong>. The market won&apos;t feel bad
+            about it, and neither should you. Just hit{" "}
+            <strong style={{ color: "var(--text-primary)" }}>Restart</strong>{" "}
+            and try again with a clean slate.
+          </InstructionItem>
+          <InstructionItem>
+            A synthetic market maker keeps the book alive in the background so there&apos;s always someone to
+            trade against. If you&apos;d rather work with a frozen book, feel free to toggle it off.
+          </InstructionItem>
         </ul>
       </div>
 
@@ -214,12 +241,12 @@ export default function LobSimulatorApp({ onReset }: Props) {
         </label>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "1.5rem", marginBottom: "1.5rem" }}>
+      <div className="lob-cols-role" style={{ display: "grid", gap: "1.5rem", marginBottom: "1.5rem" }}>
         <RoleToggle role={role} onChange={setRole} disabled={!ready} />
         <ResetButton onReset={onReset} disabled={!ready} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
+      <div className="lob-cols-2" style={{ display: "grid", gap: "1.5rem", marginBottom: "1.5rem" }}>
         <Card title="Order Book">
           <OrderBookLadder snapshot={snapshot} />
         </Card>
@@ -233,9 +260,9 @@ export default function LobSimulatorApp({ onReset }: Props) {
       </div>
 
       <div
+        className="lob-cols-3"
         style={{
           display: "grid",
-          gridTemplateColumns: "260px 1fr 300px",
           gap: "1.5rem",
           marginBottom: "1.5rem",
           alignItems: "start",
@@ -265,7 +292,7 @@ export default function LobSimulatorApp({ onReset }: Props) {
         </Card>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+      <div className="lob-cols-2" style={{ display: "grid", gap: "1.5rem" }}>
         <Card title="Order History">
           <OrderHistoryTable orders={ledger.orders} onCancel={ledger.cancelMyOrder} />
         </Card>
@@ -280,6 +307,25 @@ export default function LobSimulatorApp({ onReset }: Props) {
       <BankruptcyModal accountBalance={bankruptAtBalance} onRestart={onReset} />
     )}
     </>
+  );
+}
+
+function InstructionItem({ children }: { children: React.ReactNode }) {
+  return (
+    <li style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start" }}>
+      <span
+        style={{
+          flexShrink: 0,
+          marginTop: "0.55em",
+          width: "6px",
+          height: "6px",
+          borderRadius: "50%",
+          background: "var(--accent-cyan)",
+          boxShadow: "0 0 6px var(--accent-cyan), 0 0 2px var(--accent-cyan)",
+        }}
+      />
+      <span>{children}</span>
+    </li>
   );
 }
 
