@@ -182,8 +182,7 @@ export default function LobSimulatorApp({ onReset }: Props) {
             and try again with a clean slate.
           </InstructionItem>
           <InstructionItem>
-            A synthetic market maker keeps the book alive in the background so there&apos;s always someone to
-            trade against. If you&apos;d rather work with a frozen book, feel free to toggle it off.
+            An ambient flow of orders will come from a synthetic market maker to keep the book alive. If you&apos;d prefer a frozen book, just toggle it off.
           </InstructionItem>
         </ul>
       </div>
