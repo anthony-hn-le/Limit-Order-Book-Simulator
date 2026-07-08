@@ -22,7 +22,11 @@ const MAX_TAPE_TRADES = 100;
 const VISITOR_CLIENT_ID = 1000; // distinct from the ambient bot's client pool (1-20, see useAmbientFlow)
 const INITIAL_CASH = 1_000_000;
 
-export default function LobSimulatorApp() {
+interface Props {
+  onReset: () => void;
+}
+
+export default function LobSimulatorApp({ onReset }: Props) {
   const { engineRef, ready } = useLobEngine();
   const [snapshot, setSnapshot] = useState<BookSnapshot | null>(null);
   const [trades, setTrades] = useState<TradeEvent[]>([]);
@@ -131,7 +135,7 @@ export default function LobSimulatorApp() {
       </div>
 
       <div style={{ marginBottom: "1.5rem" }}>
-        <RoleToggle role={role} onChange={setRole} disabled={!ready} />
+        <RoleToggle role={role} onChange={setRole} onReset={onReset} disabled={!ready} />
       </div>
 
       <div style={{ marginBottom: "1.5rem" }}>

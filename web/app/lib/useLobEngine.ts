@@ -13,6 +13,16 @@ import type { LobEngineHandle } from "./types";
 // webpackIgnore/turbopackIgnore tell the bundler to leave the import
 // expression as a literal runtime browser import rather than trying (and
 // failing) to resolve it at build time.
+// Embind-bound C++ instances need explicit disposal (they're not GC'd by
+// the JS engine, since the underlying memory lives in WASM linear memory) --
+// relevant now that LobSimulatorApp can be fully remounted via the Reset
+// button, which creates a fresh engine on every reset. Not part of the
+// public LobEngineHandle type (that's the app's own domain surface), so
+// accessed via a narrow local cast rather than widening that type.
+interface Disposable {
+  delete?: () => void;
+}
+
 export function useLobEngine() {
   const engineRef = useRef<LobEngineHandle | null>(null);
   const [ready, setReady] = useState(false);
@@ -32,6 +42,8 @@ export function useLobEngine() {
 
     return () => {
       cancelled = true;
+      (engineRef.current as Disposable | null)?.delete?.();
+      engineRef.current = null;
     };
   }, []);
 
