@@ -1,6 +1,6 @@
 # Limit Order Book Simulator
 
-A from-scratch C++ central limit order book (CLOB) with price-time priority matching, a differential fuzzer checked against a naive O(n) reference implementation, a Google Benchmark suite backing concrete performance numbers (see [`BENCHMARKS.md`](BENCHMARKS.md)), and a terminal replay tool. A browser demo (matching engine compiled to WebAssembly, live order book ladder / depth chart / trade tape) is in progress.
+A from-scratch C++ central limit order book (CLOB) with price-time priority matching, a differential fuzzer checked against a naive O(n) reference implementation, a Google Benchmark suite backing concrete performance numbers (see [`BENCHMARKS.md`](BENCHMARKS.md)), and a terminal replay tool. A browser demo (matching engine compiled to WebAssembly, live order book ladder / depth chart / trade tape) is deployed at [anthony-limit-order-book-simulator.vercel.app](https://anthony-limit-order-book-simulator.vercel.app/).
 
 ## Status
 
@@ -10,9 +10,9 @@ A from-scratch C++ central limit order book (CLOB) with price-time priority matc
 | Differential fuzzer vs. naive reference book | Done |
 | `lob-cli` terminal replay + benchmark-corpus generator | Done |
 | Benchmark suite (insert/cancel/match/throughput) | Done |
-| WASM bindings | In progress |
-| Web frontend (order book ladder, depth chart, trade tape) | Not started |
-| Deploy | Not started |
+| WASM bindings | Done |
+| Web frontend (order book ladder, depth chart, trade tape) | Done |
+| Deploy | Done — [live on Vercel](https://anthony-limit-order-book-simulator.vercel.app/) |
 
 ## Design
 
@@ -60,6 +60,6 @@ engine/   core matching engine (library)
 tests/    unit tests (GoogleTest) + differential fuzzer vs. a naive reference book
 bench/    Google Benchmark suite + results post-processing
 cli/      lob-cli: terminal replay demo and benchmark-corpus generator
-wasm/     Emscripten bindings (in progress)
-web/      Next.js browser demo (not started)
+wasm/     Emscripten bindings
+web/      Next.js browser demo (deployed)
 ```
