@@ -17,6 +17,7 @@ import { MarketMakerPanel } from "./MarketMakerPanel";
 import { PriceHistoryChart } from "./PriceHistoryChart";
 import { ResetButton } from "./ResetButton";
 import { BankruptcyModal } from "./BankruptcyModal";
+import { Footer } from "./Footer";
 
 const SNAPSHOT_DEPTH = 10;
 const SNAPSHOT_POLL_MS = 150; // order books don't need 60fps; every poll crosses the WASM boundary
@@ -93,6 +94,7 @@ export default function LobSimulatorApp({ onReset }: Props) {
   const isBankrupt = bankruptAtBalance !== null;
 
   return (
+    <>
     <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 1.5rem", width: "100%" }}>
       <header style={{ marginBottom: "2rem" }}>
         <div className="mono" style={{ color: "var(--accent-cyan)", fontSize: "0.75rem", marginBottom: "0.4rem" }}>
@@ -101,18 +103,68 @@ export default function LobSimulatorApp({ onReset }: Props) {
         <h1 style={{ fontSize: "1.8rem", fontWeight: 800, letterSpacing: "-0.02em" }}>
           Limit Order Book Simulator
         </h1>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", marginTop: "0.4rem" }}>
+        <p className="mono" style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
+          Created by{" "}
+          <a
+            href="https://anthony-le.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "var(--accent-cyan)", textDecoration: "none" }}
+          >
+            Anthony Le
+          </a>
+        </p>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", marginTop: "0.6rem" }}>
           A C++ price-time priority matching engine, compiled to WebAssembly and running entirely in your
           browser. A synthetic market maker keeps the book moving; submit your own order below to trade
           against it.
         </p>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "0.75rem", lineHeight: 1.6 }}>
-          Pick a role below: Market Taker buys/sells instantly against the book, Market Maker quotes your
-          own bid/ask spread — both share one persistent account. Track your Total PnL and Account Balance
-          in the Account panel as you trade; if your balance goes negative, you&apos;re bankrupt and the game
-          restarts. Use Restart anytime for a fresh start.
-        </p>
       </header>
+
+      <div
+        className="card"
+        style={{
+          background: "var(--bg-card)",
+          border: "1px solid var(--border)",
+          borderRadius: "10px",
+          padding: "1.1rem 1.25rem",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            letterSpacing: "0.06em",
+            color: "var(--accent-cyan)",
+            marginBottom: "0.75rem",
+            textTransform: "uppercase",
+          }}
+        >
+          Instructions
+        </h2>
+        <ul style={{ color: "var(--text-secondary)", fontSize: "0.85rem", lineHeight: 1.7, margin: 0, paddingLeft: "1.3rem" }}>
+          <li>
+            🎭 Pick a role: <strong style={{ color: "var(--text-primary)" }}>Market Taker</strong> buys/sells
+            instantly against the book, <strong style={{ color: "var(--text-primary)" }}>Market Maker</strong>{" "}
+            quotes your own bid/ask spread. Same wallet either way — no cheating.
+          </li>
+          <li>
+            📊 Your <strong style={{ color: "var(--text-primary)" }}>Total PnL</strong> and{" "}
+            <strong style={{ color: "var(--text-primary)" }}>Account Balance</strong> live in the Account
+            panel. That number is the whole game.
+          </li>
+          <li>
+            💀 Balance goes negative, you&apos;re <strong style={{ color: "var(--accent-red)" }}>bankrupt</strong> —
+            the market shows no mercy. Hit <strong style={{ color: "var(--text-primary)" }}>Restart</strong>{" "}
+            for a clean slate, no hard feelings.
+          </li>
+          <li>
+            🤖 The ambient bot keeps the book alive so there&apos;s always someone to trade with — toggle it
+            off if you&apos;d rather trade a frozen book.
+          </li>
+        </ul>
+      </div>
 
       <div
         className="card"
@@ -222,10 +274,12 @@ export default function LobSimulatorApp({ onReset }: Props) {
         </Card>
       </div>
 
-      {isBankrupt && bankruptAtBalance !== null && (
-        <BankruptcyModal accountBalance={bankruptAtBalance} onRestart={onReset} />
-      )}
     </div>
+    <Footer />
+    {isBankrupt && bankruptAtBalance !== null && (
+      <BankruptcyModal accountBalance={bankruptAtBalance} onRestart={onReset} />
+    )}
+    </>
   );
 }
 
