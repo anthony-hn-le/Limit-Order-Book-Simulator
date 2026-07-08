@@ -2,20 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { useLobEngine } from "../lib/useLobEngine";
+import { useAmbientFlow } from "../lib/useAmbientFlow";
 import type { BookSnapshot, TradeEvent } from "../lib/types";
 import { OrderBookLadder } from "./OrderBookLadder";
 import { TradeTape } from "./TradeTape";
 import { OrderEntryPanel } from "./OrderEntryPanel";
+import { DepthChart } from "./DepthChart";
 
 const SNAPSHOT_DEPTH = 10;
 const SNAPSHOT_POLL_MS = 150; // order books don't need 60fps; every poll crosses the WASM boundary
 const MAX_TAPE_TRADES = 100;
-const VISITOR_CLIENT_ID = 1000; // distinct from any ambient-bot client id (see Phase 8)
+const VISITOR_CLIENT_ID = 1000; // distinct from the ambient bot's client pool (1-20, see useAmbientFlow)
 
 export default function LobSimulatorApp() {
   const { engineRef, ready } = useLobEngine();
   const [snapshot, setSnapshot] = useState<BookSnapshot | null>(null);
   const [trades, setTrades] = useState<TradeEvent[]>([]);
+  const [ambientEnabled, setAmbientEnabled] = useState(true);
+  const [ambientSpeed, setAmbientSpeed] = useState(1);
+
+  useAmbientFlow(engineRef, ready, ambientEnabled, ambientSpeed);
 
   useEffect(() => {
     if (!ready) return;
@@ -37,7 +43,7 @@ export default function LobSimulatorApp() {
   }, [ready, engineRef]);
 
   return (
-    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "2.5rem 1.5rem", width: "100%" }}>
+    <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 1.5rem", width: "100%" }}>
       <header style={{ marginBottom: "2rem" }}>
         <div className="mono" style={{ color: "var(--accent-cyan)", fontSize: "0.75rem", marginBottom: "0.4rem" }}>
           {ready ? "● ENGINE READY (WASM)" : "○ LOADING ENGINE..."}
@@ -47,26 +53,88 @@ export default function LobSimulatorApp() {
         </h1>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", marginTop: "0.4rem" }}>
           A C++ price-time priority matching engine, compiled to WebAssembly and running entirely in your
-          browser. Submit an order below.
+          browser. A synthetic market maker keeps the book moving; submit your own order below to trade
+          against it.
         </p>
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 260px", gap: "1.5rem", alignItems: "start" }}>
-        <div className="card" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "12px", padding: "1.25rem" }}>
-          <SectionTitle>Order Book</SectionTitle>
-          <OrderBookLadder snapshot={snapshot} />
-        </div>
+      <div
+        className="card"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+          background: "var(--bg-card)",
+          border: "1px solid var(--border)",
+          borderRadius: "10px",
+          padding: "0.75rem 1rem",
+          marginBottom: "1.5rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setAmbientEnabled((v) => !v)}
+          disabled={!ready}
+          className="mono"
+          style={{
+            padding: "0.4rem 0.8rem",
+            borderRadius: "6px",
+            border: `1px solid ${ambientEnabled ? "var(--accent-cyan)" : "var(--border)"}`,
+            background: ambientEnabled ? "color-mix(in srgb, var(--accent-cyan) 12%, transparent)" : "transparent",
+            color: ambientEnabled ? "var(--accent-cyan)" : "var(--text-secondary)",
+            fontSize: "0.78rem",
+            cursor: ready ? "pointer" : "not-allowed",
+          }}
+        >
+          {ambientEnabled ? "● Ambient flow: ON" : "○ Ambient flow: OFF"}
+        </button>
 
-        <div className="card" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "12px", padding: "1.25rem" }}>
-          <SectionTitle>Trade Tape</SectionTitle>
-          <TradeTape trades={trades} />
-        </div>
-
-        <div className="card" style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "12px", padding: "1.25rem" }}>
-          <SectionTitle>Submit Order</SectionTitle>
-          <OrderEntryPanel engineRef={engineRef} clientId={VISITOR_CLIENT_ID} disabled={!ready} />
-        </div>
+        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", margin: 0, flex: "1 1 200px" }}>
+          <span className="mono" style={{ fontSize: "0.72rem", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
+            SPEED {ambientSpeed.toFixed(1)}x
+          </span>
+          <input
+            type="range"
+            min={0.25}
+            max={3}
+            step={0.25}
+            value={ambientSpeed}
+            onChange={(e) => setAmbientSpeed(Number(e.target.value))}
+            style={{ width: "auto", flex: 1 }}
+          />
+        </label>
       </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
+        <Card title="Order Book">
+          <OrderBookLadder snapshot={snapshot} />
+        </Card>
+        <Card title="Depth Chart">
+          <DepthChart snapshot={snapshot} />
+        </Card>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "1.5rem" }}>
+        <Card title="Trade Tape">
+          <TradeTape trades={trades} />
+        </Card>
+        <Card title="Submit Order">
+          <OrderEntryPanel engineRef={engineRef} clientId={VISITOR_CLIENT_ID} disabled={!ready} />
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div
+      className="card"
+      style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "12px", padding: "1.25rem" }}
+    >
+      <SectionTitle>{title}</SectionTitle>
+      {children}
     </div>
   );
 }
