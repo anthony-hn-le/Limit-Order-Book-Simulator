@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>lob_engine WASM harness</title></head>
+<body>
+<p>Open devtools. <code>engine</code> is a live <code>LobEngine</code> instance.</p>
+<pre id="log"></pre>
+<script type="module">
+  import createLobEngineModule from "../web/public/wasm/lob_engine.js";
+
+  const Module = await createLobEngineModule();
+  window.engine = new Module.LobEngine();
+  window.engine.setOnTrade((t) => console.log("trade", t));
+
+  const log = document.getElementById("log");
+  log.textContent =
+    "Loaded. Try in the console:\n" +
+    "  engine.submitLimitOrder(1 /*Sell*/, 100, 10, 1)\n" +
+    "  engine.submitLimitOrder(0 /*Buy*/, 100, 4, 2)\n" +
+    "  engine.getBookSnapshot(10)\n" +
+    "  engine.cancelOrder(<id>)\n";
+</script>
+</body>
+</html>
