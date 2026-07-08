@@ -166,23 +166,18 @@ export default function LobSimulatorApp({ onReset }: Props) {
         </h2>
         <ul style={{ listStyle: "none", color: "var(--text-secondary)", fontSize: "0.85rem", lineHeight: 1.7, margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "0.6rem" }}>
           <InstructionItem>
-            Start by picking a role.{" "}
+            Start by picking a role:{" "}
             <strong style={{ color: "var(--text-primary)" }}>Market Taker</strong>{" "}
             buys and sells instantly against the book, while{" "}
             <strong style={{ color: "var(--text-primary)" }}>Market Maker</strong>{" "}
-            lets you quote your own bid and ask. Both spend from the same wallet, so don&apos;t bother trying to
-            trade against yourself.
+            lets you quote your own bid and ask. Both spend from the same wallet, which starts at $1,000,000.
           </InstructionItem>
           <InstructionItem>
             Keep an eye on your <strong style={{ color: "var(--text-primary)" }}>Total PnL</strong>{" "}
             and{" "}
             <strong style={{ color: "var(--text-primary)" }}>Account Balance</strong>{" "}
-            in the Account panel. Honestly, that number is basically the whole game.
-          </InstructionItem>
-          <InstructionItem>
-            Let your balance drop below zero and you&apos;re{" "}
-            <strong style={{ color: "var(--accent-red)" }}>bankrupt</strong>. The market won&apos;t feel bad
-            about it, and neither should you. Just hit{" "}
+            in the Account panel. Let your balance drop below zero and you&apos;re{" "}
+            <strong style={{ color: "var(--accent-red)" }}>bankrupt</strong>. If that happens, just hit{" "}
             <strong style={{ color: "var(--text-primary)" }}>Restart</strong>{" "}
             and try again with a clean slate.
           </InstructionItem>
