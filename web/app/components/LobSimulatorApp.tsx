@@ -3,16 +3,23 @@
 import { useEffect, useState } from "react";
 import { useLobEngine } from "../lib/useLobEngine";
 import { useAmbientFlow } from "../lib/useAmbientFlow";
+import { useAccountLedger } from "../lib/useAccountLedger";
 import type { BookSnapshot, TradeEvent } from "../lib/types";
 import { OrderBookLadder } from "./OrderBookLadder";
 import { TradeTape } from "./TradeTape";
 import { OrderEntryPanel } from "./OrderEntryPanel";
 import { DepthChart } from "./DepthChart";
+import { RoleToggle, type Role } from "./RoleToggle";
+import { InfoTrackers } from "./InfoTrackers";
+import { AccountDashboard } from "./AccountDashboard";
+import { OrderHistoryTable } from "./OrderHistoryTable";
+import { MarketMakerPanel } from "./MarketMakerPanel";
 
 const SNAPSHOT_DEPTH = 10;
 const SNAPSHOT_POLL_MS = 150; // order books don't need 60fps; every poll crosses the WASM boundary
 const MAX_TAPE_TRADES = 100;
 const VISITOR_CLIENT_ID = 1000; // distinct from the ambient bot's client pool (1-20, see useAmbientFlow)
+const INITIAL_CASH = 1_000_000;
 
 export default function LobSimulatorApp() {
   const { engineRef, ready } = useLobEngine();
@@ -20,8 +27,10 @@ export default function LobSimulatorApp() {
   const [trades, setTrades] = useState<TradeEvent[]>([]);
   const [ambientEnabled, setAmbientEnabled] = useState(true);
   const [ambientSpeed, setAmbientSpeed] = useState(1);
+  const [role, setRole] = useState<Role>("taker");
 
   useAmbientFlow(engineRef, ready, ambientEnabled, ambientSpeed);
+  const ledger = useAccountLedger(engineRef, VISITOR_CLIENT_ID, INITIAL_CASH);
 
   useEffect(() => {
     if (!ready) return;
@@ -33,6 +42,7 @@ export default function LobSimulatorApp() {
         const next = [trade, ...prev];
         return next.length > MAX_TAPE_TRADES ? next.slice(0, MAX_TAPE_TRADES) : next;
       });
+      ledger.registerTradeForAttribution(trade);
     });
 
     const interval = setInterval(() => {
@@ -40,7 +50,19 @@ export default function LobSimulatorApp() {
     }, SNAPSHOT_POLL_MS);
 
     return () => clearInterval(interval);
-  }, [ready, engineRef]);
+    // ledger.registerTradeForAttribution is individually stabilized via useCallback in
+    // useAccountLedger; `ledger` itself is a fresh object every render, so depending on
+    // the whole object here would re-subscribe setOnTrade and reset the poll interval
+    // on every render instead of once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, engineRef, ledger.registerTradeForAttribution]);
+
+  const lastPrice = trades.length > 0 ? trades[0].price : null;
+  const bestBid = snapshot && snapshot.bidCount > 0 ? snapshot.bidPrice[0] : null;
+  const bestAsk = snapshot && snapshot.askCount > 0 ? snapshot.askPrice[0] : null;
+  const midPrice = bestBid !== null && bestAsk !== null ? (bestBid + bestAsk) / 2 : null;
+  const unrealizedPnl = ledger.unrealizedPnl(midPrice);
+  const totalPnl = ledger.realizedPnl + unrealizedPnl;
 
   return (
     <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 1.5rem", width: "100%" }}>
@@ -106,6 +128,14 @@ export default function LobSimulatorApp() {
         </label>
       </div>
 
+      <div style={{ marginBottom: "1.5rem" }}>
+        <RoleToggle role={role} onChange={setRole} disabled={!ready} />
+      </div>
+
+      <div style={{ marginBottom: "1.5rem" }}>
+        <InfoTrackers lastPrice={lastPrice} bestBid={bestBid} bestAsk={bestAsk} midPrice={midPrice} />
+      </div>
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
         <Card title="Order Book">
           <OrderBookLadder snapshot={snapshot} />
@@ -115,14 +145,40 @@ export default function LobSimulatorApp() {
         </Card>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "1.5rem" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "260px 1fr 300px",
+          gap: "1.5rem",
+          marginBottom: "1.5rem",
+          alignItems: "start",
+        }}
+      >
         <Card title="Trade Tape">
           <TradeTape trades={trades} />
         </Card>
-        <Card title="Submit Order">
-          <OrderEntryPanel engineRef={engineRef} clientId={VISITOR_CLIENT_ID} disabled={!ready} />
+        <Card title="Account">
+          <AccountDashboard
+            cash={ledger.cash}
+            position={ledger.position}
+            realizedPnl={ledger.realizedPnl}
+            unrealizedPnl={unrealizedPnl}
+            totalPnl={totalPnl}
+            hasMidPrice={midPrice !== null}
+          />
+        </Card>
+        <Card title={role === "taker" ? "Submit Order" : "Submit Quote"}>
+          {role === "taker" ? (
+            <OrderEntryPanel disabled={!ready} submitLimit={ledger.submitMyLimitOrder} submitMarket={ledger.submitMyMarketOrder} />
+          ) : (
+            <MarketMakerPanel disabled={!ready} onSubmitQuote={ledger.submitMyQuote} />
+          )}
         </Card>
       </div>
+
+      <Card title="Order History">
+        <OrderHistoryTable orders={ledger.orders} onCancel={ledger.cancelMyOrder} />
+      </Card>
     </div>
   );
 }

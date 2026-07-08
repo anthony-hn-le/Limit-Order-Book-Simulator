@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, type CSSProperties, type RefObject } from "react";
+import { useState } from "react";
 import { SIDE_BUY, SIDE_SELL } from "../lib/types";
-import type { LobEngineHandle, SideValue } from "../lib/types";
+import type { SideValue } from "../lib/types";
+import { toggleStyle } from "../lib/uiStyle";
 
 interface Props {
-  engineRef: RefObject<LobEngineHandle | null>;
-  clientId: number;
   disabled: boolean;
+  submitLimit: (side: SideValue, price: number, quantity: number) => number | null;
+  submitMarket: (side: SideValue, quantity: number) => number | null;
 }
 
-export function OrderEntryPanel({ engineRef, clientId, disabled }: Props) {
+export function OrderEntryPanel({ disabled, submitLimit, submitMarket }: Props) {
   const [side, setSide] = useState<SideValue>(SIDE_BUY);
   const [type, setType] = useState<"limit" | "market">("limit");
   const [price, setPrice] = useState("10000");
@@ -18,20 +19,18 @@ export function OrderEntryPanel({ engineRef, clientId, disabled }: Props) {
   const [lastResult, setLastResult] = useState<string | null>(null);
 
   const submit = () => {
-    const engine = engineRef.current;
-    if (!engine) return;
     const qty = Number(quantity);
     if (!Number.isFinite(qty) || qty <= 0) return;
 
     const sideLabel = side === SIDE_BUY ? "buy" : "sell";
     if (type === "market") {
-      const id = engine.submitMarketOrder(side, qty, clientId);
-      setLastResult(`Submitted market ${sideLabel} #${id}`);
+      const id = submitMarket(side, qty);
+      if (id != null) setLastResult(`Submitted market ${sideLabel} #${id}`);
     } else {
       const px = Number(price);
       if (!Number.isFinite(px) || px <= 0) return;
-      const id = engine.submitLimitOrder(side, px, qty, clientId);
-      setLastResult(`Submitted limit ${sideLabel} #${id} @ ${px}`);
+      const id = submitLimit(side, px, qty);
+      if (id != null) setLastResult(`Submitted limit ${sideLabel} #${id} @ ${px}`);
     }
   };
 
@@ -87,17 +86,4 @@ export function OrderEntryPanel({ engineRef, clientId, disabled }: Props) {
       )}
     </div>
   );
-}
-
-function toggleStyle(active: boolean, color: string): CSSProperties {
-  return {
-    flex: 1,
-    padding: "0.5rem",
-    borderRadius: "6px",
-    border: `1px solid ${active ? color : "var(--border)"}`,
-    background: active ? `color-mix(in srgb, ${color} 15%, transparent)` : "transparent",
-    color: active ? color : "var(--text-secondary)",
-    fontWeight: 600,
-    cursor: "pointer",
-  };
 }
