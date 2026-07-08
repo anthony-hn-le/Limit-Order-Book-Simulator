@@ -177,7 +177,7 @@ export default function LobSimulatorApp({ onReset }: Props) {
             and{" "}
             <strong style={{ color: "var(--text-primary)" }}>Account Balance</strong>{" "}
             in the Account panel. Let your balance drop below zero and you&apos;re{" "}
-            <strong style={{ color: "var(--accent-red)" }}>bankrupt</strong>. If that happens, the market won't care, and neither should you. Just hit{" "}
+            <strong style={{ color: "var(--accent-red)" }}>bankrupt</strong>. If that happens, the market won&apos;t care, and neither should you. Just hit{" "}
             <strong style={{ color: "var(--text-primary)" }}>Restart</strong>{" "}
             and try again with a clean slate.
           </InstructionItem>
