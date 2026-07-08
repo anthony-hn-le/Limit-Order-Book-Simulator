@@ -15,6 +15,7 @@ import { AccountDashboard } from "./AccountDashboard";
 import { OrderHistoryTable } from "./OrderHistoryTable";
 import { MarketMakerPanel } from "./MarketMakerPanel";
 import { PriceHistoryChart } from "./PriceHistoryChart";
+import { ResetButton } from "./ResetButton";
 
 const SNAPSHOT_DEPTH = 10;
 const SNAPSHOT_POLL_MS = 150; // order books don't need 60fps; every poll crosses the WASM boundary
@@ -134,12 +135,9 @@ export default function LobSimulatorApp({ onReset }: Props) {
         </label>
       </div>
 
-      <div style={{ marginBottom: "1.5rem" }}>
-        <RoleToggle role={role} onChange={setRole} onReset={onReset} disabled={!ready} />
-      </div>
-
-      <div style={{ marginBottom: "1.5rem" }}>
-        <InfoTrackers lastPrice={lastPrice} bestBid={bestBid} bestAsk={bestAsk} spread={spread} midPrice={midPrice} />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "1.5rem", marginBottom: "1.5rem" }}>
+        <RoleToggle role={role} onChange={setRole} disabled={!ready} />
+        <ResetButton onReset={onReset} disabled={!ready} />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
@@ -149,6 +147,10 @@ export default function LobSimulatorApp({ onReset }: Props) {
         <Card title="Depth Chart">
           <DepthChart snapshot={snapshot} />
         </Card>
+      </div>
+
+      <div style={{ marginBottom: "1.5rem" }}>
+        <InfoTrackers lastPrice={lastPrice} bestBid={bestBid} bestAsk={bestAsk} spread={spread} midPrice={midPrice} />
       </div>
 
       <div
