@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLOB_BUILD_BENCH=OFF
+
+      - name: Build
+        run: cmake --build build -j
+
+      - name: Test (unit + fixed-seed differential fuzz)
+        run: ctest --test-dir build --output-on-failure
