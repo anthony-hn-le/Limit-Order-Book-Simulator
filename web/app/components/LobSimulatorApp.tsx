@@ -170,14 +170,14 @@ export default function LobSimulatorApp({ onReset }: Props) {
             <strong style={{ color: "var(--text-primary)" }}>Market Taker</strong>{" "}
             buys and sells instantly against the book, while{" "}
             <strong style={{ color: "var(--text-primary)" }}>Market Maker</strong>{" "}
-            lets you quote your own bid and ask. Both spend from the same wallet, which starts at $1,000,000.
+            lets you quote your own bid and ask. You may switch roles during the simulation, but both spend from the same wallet, which starts at $1,000,000.
           </InstructionItem>
           <InstructionItem>
-            Keep an eye on your <strong style={{ color: "var(--text-primary)" }}>Total PnL</strong>{" "}
+            Track your <strong style={{ color: "var(--text-primary)" }}>Total PnL</strong>{" "}
             and{" "}
             <strong style={{ color: "var(--text-primary)" }}>Account Balance</strong>{" "}
             in the Account panel. Let your balance drop below zero and you&apos;re{" "}
-            <strong style={{ color: "var(--accent-red)" }}>bankrupt</strong>. If that happens, just hit{" "}
+            <strong style={{ color: "var(--accent-red)" }}>bankrupt</strong>. If that happens, the market won't care, and neither should you. Just hit{" "}
             <strong style={{ color: "var(--text-primary)" }}>Restart</strong>{" "}
             and try again with a clean slate.
           </InstructionItem>
