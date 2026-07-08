@@ -7,6 +7,7 @@ interface Props {
   realizedPnl: number;
   unrealizedPnl: number;
   totalPnl: number;
+  accountBalance: number;
   hasMidPrice: boolean;
 }
 
@@ -17,6 +18,7 @@ export function AccountDashboard({
   realizedPnl,
   unrealizedPnl,
   totalPnl,
+  accountBalance,
   hasMidPrice,
 }: Props) {
   const showUnrealized = hasMidPrice || position === 0;
@@ -43,6 +45,14 @@ export function AccountDashboard({
           color={showUnrealized ? pnlColor(totalPnl) : pnlColor(realizedPnl)}
           bold
         />
+        <div style={{ marginTop: "0.65rem" }}>
+          <Row
+            label="Account Balance"
+            value={formatCurrency(accountBalance)}
+            color={accountBalance < 0 ? "var(--accent-red)" : "var(--text-primary)"}
+            bold
+          />
+        </div>
       </div>
     </div>
   );

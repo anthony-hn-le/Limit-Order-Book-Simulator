@@ -16,6 +16,7 @@ import { OrderHistoryTable } from "./OrderHistoryTable";
 import { MarketMakerPanel } from "./MarketMakerPanel";
 import { PriceHistoryChart } from "./PriceHistoryChart";
 import { ResetButton } from "./ResetButton";
+import { BankruptcyModal } from "./BankruptcyModal";
 
 const SNAPSHOT_DEPTH = 10;
 const SNAPSHOT_POLL_MS = 150; // order books don't need 60fps; every poll crosses the WASM boundary
@@ -70,6 +71,26 @@ export default function LobSimulatorApp({ onReset }: Props) {
   const spread = bestBid !== null && bestAsk !== null ? bestAsk - bestBid : null;
   const unrealizedPnl = ledger.unrealizedPnl(midPrice);
   const totalPnl = ledger.realizedPnl + unrealizedPnl;
+  // Total account equity (cash plus the mark-to-market value of any open
+  // position), not just raw cash -- a deeply underwater open position should
+  // be able to trigger bankruptcy even if cash-in-hand is still positive.
+  const accountBalance = INITIAL_CASH + totalPnl;
+  // Bankruptcy must be a *sticky* latch, not a plain derived boolean: the
+  // ambient bot keeps trading in the background (and any open position
+  // keeps marking to market) even while the modal is up, so accountBalance
+  // can drift back above zero on its own -- a plain `accountBalance < 0`
+  // would make the modal silently vanish without Restart ever being
+  // clicked. Latched via React's documented "adjust state during render"
+  // pattern (not useEffect+setState, which would add an extra render pass
+  // for no benefit and is what the linter flags as the anti-pattern here).
+  // The triggering balance is frozen at the moment of bankruptcy too --
+  // showing the live (possibly since-recovered) balance next to "dropped
+  // below zero" would read as self-contradictory.
+  const [bankruptAtBalance, setBankruptAtBalance] = useState<number | null>(null);
+  if (accountBalance < 0 && bankruptAtBalance === null) {
+    setBankruptAtBalance(accountBalance);
+  }
+  const isBankrupt = bankruptAtBalance !== null;
 
   return (
     <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 1.5rem", width: "100%" }}>
@@ -84,6 +105,12 @@ export default function LobSimulatorApp({ onReset }: Props) {
           A C++ price-time priority matching engine, compiled to WebAssembly and running entirely in your
           browser. A synthetic market maker keeps the book moving; submit your own order below to trade
           against it.
+        </p>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "0.75rem", lineHeight: 1.6 }}>
+          Pick a role below: Market Taker buys/sells instantly against the book, Market Maker quotes your
+          own bid/ask spread — both share one persistent account. Track your Total PnL and Account Balance
+          in the Account panel as you trade; if your balance goes negative, you&apos;re bankrupt and the game
+          restarts. Use Restart anytime for a fresh start.
         </p>
       </header>
 
@@ -173,6 +200,7 @@ export default function LobSimulatorApp({ onReset }: Props) {
             realizedPnl={ledger.realizedPnl}
             unrealizedPnl={unrealizedPnl}
             totalPnl={totalPnl}
+            accountBalance={accountBalance}
             hasMidPrice={midPrice !== null}
           />
         </Card>
@@ -193,6 +221,10 @@ export default function LobSimulatorApp({ onReset }: Props) {
           <PriceHistoryChart trades={trades} />
         </Card>
       </div>
+
+      {isBankrupt && bankruptAtBalance !== null && (
+        <BankruptcyModal accountBalance={bankruptAtBalance} onRestart={onReset} />
+      )}
     </div>
   );
 }

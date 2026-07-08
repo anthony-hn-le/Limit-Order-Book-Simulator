@@ -26,13 +26,13 @@ export function ResetButton({ onReset, disabled }: Props) {
         disabled={disabled}
         className="mono"
         style={{
-          padding: "0.6rem 1.25rem",
+          padding: "0.75rem 1.75rem",
           borderRadius: "6px",
           border: "1px solid var(--border)",
           background: "transparent",
           color: "var(--text-secondary)",
-          fontSize: "0.85rem",
-          fontWeight: 700,
+          fontSize: "1.05rem",
+          fontWeight: 800,
           cursor: disabled ? "not-allowed" : "pointer",
           opacity: disabled ? 0.5 : 1,
           whiteSpace: "nowrap",
@@ -43,9 +43,9 @@ export function ResetButton({ onReset, disabled }: Props) {
         onMouseLeave={(e) => {
           e.currentTarget.style.color = "var(--text-secondary)";
         }}
-        title="Reset the engine, order book, and your account back to a fresh start"
+        title="Restart the engine, order book, and your account back to a fresh start"
       >
-        ↺ Reset
+        ↺ Restart
       </button>
     </div>
   );
