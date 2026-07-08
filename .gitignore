@@ -11,8 +11,12 @@ wasm/*.wasm.map
 web/node_modules/
 web/.next/
 web/out/
-web/public/wasm/
 web/.env*.local
+
+# web/public/wasm/ is intentionally NOT ignored: Vercel's build environment
+# has no Emscripten, so the compiled WASM module is committed as a build
+# artifact. Rebuild via wasm/build.sh after any engine change and commit
+# the output.
 
 # macOS
 .DS_Store
