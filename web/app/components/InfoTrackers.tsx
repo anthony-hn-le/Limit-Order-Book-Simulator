@@ -2,16 +2,17 @@ interface Props {
   lastPrice: number | null;
   bestBid: number | null;
   bestAsk: number | null;
+  spread: number | null;
   midPrice: number | null;
 }
 
-export function InfoTrackers({ lastPrice, bestBid, bestAsk, midPrice }: Props) {
+export function InfoTrackers({ lastPrice, bestBid, bestAsk, spread, midPrice }: Props) {
   return (
     <div
       className="card"
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(4, 1fr)",
+        gridTemplateColumns: "repeat(5, 1fr)",
         gap: "1rem",
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
@@ -22,6 +23,7 @@ export function InfoTrackers({ lastPrice, bestBid, bestAsk, midPrice }: Props) {
       <Stat label="LAST PRICE" value={lastPrice} color="var(--text-primary)" />
       <Stat label="BEST BID" value={bestBid} color="var(--accent-green)" />
       <Stat label="BEST ASK" value={bestAsk} color="var(--accent-red)" />
+      <Stat label="SPREAD" value={spread} color="var(--text-primary)" />
       <Stat label="MID" value={midPrice} color="var(--accent-cyan)" />
     </div>
   );

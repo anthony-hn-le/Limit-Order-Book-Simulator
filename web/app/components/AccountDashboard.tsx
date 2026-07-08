@@ -3,19 +3,33 @@ import { formatCurrency, formatSigned, pnlColor } from "../lib/format";
 interface Props {
   cash: number;
   position: number;
+  avgEntryPrice: number;
   realizedPnl: number;
   unrealizedPnl: number;
   totalPnl: number;
   hasMidPrice: boolean;
 }
 
-export function AccountDashboard({ cash, position, realizedPnl, unrealizedPnl, totalPnl, hasMidPrice }: Props) {
+export function AccountDashboard({
+  cash,
+  position,
+  avgEntryPrice,
+  realizedPnl,
+  unrealizedPnl,
+  totalPnl,
+  hasMidPrice,
+}: Props) {
   const showUnrealized = hasMidPrice || position === 0;
 
   return (
     <div className="mono" style={{ display: "flex", flexDirection: "column", gap: "0.65rem", fontSize: "0.85rem" }}>
       <Row label="Cash" value={formatCurrency(cash)} color="var(--text-primary)" />
       <Row label="Position" value={formatSigned(position)} color="var(--text-primary)" />
+      <Row
+        label="Average Price"
+        value={position === 0 ? "—" : String(Number(avgEntryPrice.toFixed(2)))}
+        color={position === 0 ? "var(--text-muted)" : "var(--text-primary)"}
+      />
       <Row label="Realized PnL" value={formatCurrency(realizedPnl)} color={pnlColor(realizedPnl)} />
       <Row
         label="Unrealized PnL"

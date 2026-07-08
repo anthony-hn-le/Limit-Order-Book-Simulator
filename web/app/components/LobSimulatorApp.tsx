@@ -14,6 +14,7 @@ import { InfoTrackers } from "./InfoTrackers";
 import { AccountDashboard } from "./AccountDashboard";
 import { OrderHistoryTable } from "./OrderHistoryTable";
 import { MarketMakerPanel } from "./MarketMakerPanel";
+import { PriceHistoryChart } from "./PriceHistoryChart";
 
 const SNAPSHOT_DEPTH = 10;
 const SNAPSHOT_POLL_MS = 150; // order books don't need 60fps; every poll crosses the WASM boundary
@@ -61,6 +62,7 @@ export default function LobSimulatorApp() {
   const bestBid = snapshot && snapshot.bidCount > 0 ? snapshot.bidPrice[0] : null;
   const bestAsk = snapshot && snapshot.askCount > 0 ? snapshot.askPrice[0] : null;
   const midPrice = bestBid !== null && bestAsk !== null ? (bestBid + bestAsk) / 2 : null;
+  const spread = bestBid !== null && bestAsk !== null ? bestAsk - bestBid : null;
   const unrealizedPnl = ledger.unrealizedPnl(midPrice);
   const totalPnl = ledger.realizedPnl + unrealizedPnl;
 
@@ -133,7 +135,7 @@ export default function LobSimulatorApp() {
       </div>
 
       <div style={{ marginBottom: "1.5rem" }}>
-        <InfoTrackers lastPrice={lastPrice} bestBid={bestBid} bestAsk={bestAsk} midPrice={midPrice} />
+        <InfoTrackers lastPrice={lastPrice} bestBid={bestBid} bestAsk={bestAsk} spread={spread} midPrice={midPrice} />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
@@ -161,6 +163,7 @@ export default function LobSimulatorApp() {
           <AccountDashboard
             cash={ledger.cash}
             position={ledger.position}
+            avgEntryPrice={ledger.avgEntryPrice}
             realizedPnl={ledger.realizedPnl}
             unrealizedPnl={unrealizedPnl}
             totalPnl={totalPnl}
@@ -176,9 +179,14 @@ export default function LobSimulatorApp() {
         </Card>
       </div>
 
-      <Card title="Order History">
-        <OrderHistoryTable orders={ledger.orders} onCancel={ledger.cancelMyOrder} />
-      </Card>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+        <Card title="Order History">
+          <OrderHistoryTable orders={ledger.orders} onCancel={ledger.cancelMyOrder} />
+        </Card>
+        <Card title="Price History">
+          <PriceHistoryChart trades={trades} />
+        </Card>
+      </div>
     </div>
   );
 }
