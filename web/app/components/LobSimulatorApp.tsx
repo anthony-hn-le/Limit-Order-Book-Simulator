@@ -118,34 +118,42 @@ export default function LobSimulatorApp({ onReset }: Props) {
     `}</style>
     <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 1.5rem", width: "100%" }}>
       <header style={{ marginBottom: "2rem" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", alignItems: "center", gap: "1rem" }}>
-          <div style={{ display: "flex", justifyContent: "flex-start" }}>
-            <a
-              href="https://anthony-le.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Anthony Le's personal website"
-              className="mono"
-              style={{ fontSize: "1.1rem", fontWeight: 700, letterSpacing: "-0.5px", textDecoration: "none" }}
-            >
-              <span style={{ color: "var(--accent-cyan)" }}>AL</span>
-              <span style={{ color: "var(--text-primary)" }}>_</span>
-            </a>
-          </div>
-          <div style={{ textAlign: "center" }}>
-            <div
-              className="mono"
-              style={{ color: "var(--accent-cyan)", fontSize: "0.75rem", marginBottom: "0.4rem" }}
-            >
-              {ready ? "● ENGINE READY (WASM)" : "○ LOADING ENGINE..."}
-            </div>
-            <h1 style={{ fontSize: "1.8rem", fontWeight: 800, letterSpacing: "-0.02em" }}>
-              Limit Order Book Simulator
-            </h1>
-          </div>
-          <div />
+        <a
+          href="https://anthony-le.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Anthony Le's personal website"
+          className="mono"
+          style={{
+            display: "inline-block",
+            fontSize: "1.1rem",
+            fontWeight: 700,
+            letterSpacing: "-0.5px",
+            textDecoration: "none",
+            marginBottom: "0.75rem",
+          }}
+        >
+          <span style={{ color: "var(--accent-cyan)" }}>AL</span>
+          <span style={{ color: "var(--text-primary)" }}>_</span>
+        </a>
+        <div className="mono" style={{ color: "var(--accent-cyan)", fontSize: "0.75rem", marginBottom: "0.4rem" }}>
+          {ready ? "● ENGINE READY (WASM)" : "○ LOADING ENGINE..."}
         </div>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", marginTop: "1rem", textAlign: "center" }}>
+        <h1 style={{ fontSize: "1.8rem", fontWeight: 800, letterSpacing: "-0.02em" }}>
+          Limit Order Book Simulator
+        </h1>
+        <p className="mono" style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
+          Created by{" "}
+          <a
+            href="https://anthony-le.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "var(--accent-cyan)", textDecoration: "none" }}
+          >
+            Anthony Le
+          </a>
+        </p>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", marginTop: "0.6rem" }}>
           A C++ price-time priority matching engine, compiled to WebAssembly and running entirely in your
           browser. A synthetic market maker keeps the book moving; submit your own order below to trade
           against it.
